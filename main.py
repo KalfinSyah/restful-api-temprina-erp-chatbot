@@ -12,13 +12,14 @@ from langchain_core.runnables import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
 from pydantic import BaseModel
 from fastapi import FastAPI, Header, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 
 load_dotenv(override=True)
 
 class UserRequest(BaseModel):
     message: str
 
-def req_so_data_as_a_list_document() -> list[Document]:
+def req_so_data():
     params = {
         "scopes": "filterRespo",
         "detail": "true",
@@ -36,7 +37,10 @@ def req_so_data_as_a_list_document() -> list[Document]:
         timeout=30
     )
     response.raise_for_status()
-    data = response.json().get("data", [])
+    return response.json().get("data", [])
+
+def req_so_data_as_a_list_document() -> list[Document]:
+    data = req_so_data()
     return [
         Document(
             page_content=(
@@ -82,7 +86,7 @@ def req_so_data_as_a_list_document() -> list[Document]:
                 f"DPP: {so.get('dpp')}, "
                 f"PPN Percent: {so.get('ppn_pct')}, "
                 f"PPN Amount: {so.get('ppn_amt')}, "
-                f"Grand Total: {so.get('netto')}"
+                f"Grand Total: {so.get('netto')}"   
             )
         )
         for so in data
@@ -137,15 +141,79 @@ def rag_chain(documents):
     return rag_chain
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 chatbot_buffer = rag_chain(req_so_data_as_a_list_document())
+
+@app.get("/sales-order")
+async def get_sales_order_data(authorization: str = Header(None)):
+    if authorization != f"Bearer {os.getenv('CHATBOT_BEARER_TOKEN')}":
+        raise HTTPException(status_code=401, detail="unauthorized")
+
+    data = req_so_data()
+
+    return {
+        "data": [
+            {
+                "business_unit": so.get("comp.name"),
+                "sub_business_unit": so.get("sub_comp.name"),
+                "cabang": so.get("branch.name"),
+                "trx_so": so.get("no"),
+                "so_date": so.get("date"),
+                "so_type": so.get("type"),
+                "item_type": so.get("item_type.value1"),
+                "customer_type": so.get("cust_type.value1"),
+                "pemasaran": so.get("pemasaran.value1"),
+                "pembayaran": so.get("pembayaran.value1"),
+                "customer": so.get("cust_name"),
+                "alamat_customer": so.get("cust_addr"),
+                "npwp": so.get("cust_npwp"),
+                "nama_npwp": so.get("cust_npwpname"),
+                "contact_person": so.get("cust_cp"),
+                "customer_po": so.get("cust_no_po"),
+                "bill_to": so.get("ship.name"),
+                "bill_to_address": so.get("ship.addr"),
+                "order_type_1": so.get("order_type1.value1"),
+                "order_type_2": so.get("order_type2.value1"),
+                "ppn_type": so.get("ppn_type"),
+                "so_prospek": so.get("is_prospek"),
+                "nama_penerima": so.get("ship.name"),
+                "alamat": so.get("ship.addr"),
+                "due_date": so.get("ship_duedate"),
+                "payment_term": so.get("pay_term.value1"),
+                "project": so.get("project"),
+                "down_payment_percentage": so.get("dp_pct"),
+                "down_payment_amount": so.get("dp_amt"),
+                "currency": so.get("currency.name"),
+                "exchange_rate": so.get("currency_rate"),
+                "catatan": so.get("note"),
+                "status": so.get("status.value1"),
+                "est_ekspedisi_percentage": so.get("exp_pct"),
+                "est_ekspedisi_amount": so.get("exp_amt"),
+                "est_operasional_percentage": so.get("ops_pct"),
+                "est_operasional_amount": so.get("ops_amt"),
+                "total_amount": so.get("amt"),
+                "total_discount_amount": so.get("disc_amt"),
+                "dpp": so.get("dpp"),
+                "ppn_percent": so.get("ppn_pct"),
+                "ppn_amount": so.get("ppn_amt"),
+                "grand_total": so.get("netto")
+            }
+            for so in data
+        ]
+    }
 
 @app.post("/chatbot")
 async def chatbot(data: UserRequest, authorization: str = Header(None)):
     global chatbot_buffer
 
-    if authorization != f"Bearer {os.getenv('CHABOT_BEARER_TOKEN')}":
+    if authorization != f"Bearer {os.getenv('CHATBOT_BEARER_TOKEN')}":
         raise HTTPException(status_code=401, detail="unauthorized")
-
 
     if chatbot_buffer is None:
         return { 
