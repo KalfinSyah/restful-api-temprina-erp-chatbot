@@ -31,7 +31,7 @@ def req_so_data():
         "Accept": "application/json",
     }
     response = requests.get(
-        os.getenv("T_SO_ENDPOINT"),
+        os.getenv("T_SO_API_ENDPOINT"),
         headers=headers,
         params=params,
         timeout=30
@@ -152,7 +152,7 @@ chatbot_buffer = rag_chain(req_so_data_as_a_list_document())
 
 @app.get("/sales-order")
 async def get_sales_order_data(authorization: str = Header(None)):
-    if authorization != f"Bearer {os.getenv('CHATBOT_BEARER_TOKEN')}":
+    if authorization != f"Bearer {os.getenv('SALES_ORDER_BEARER_TOKEN')}":
         raise HTTPException(status_code=401, detail="unauthorized")
 
     data = req_so_data()
