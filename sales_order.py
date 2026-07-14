@@ -37,56 +37,6 @@ def req_data_testing():
         so_data_as_json = json.load(f)
 
     return so_data_as_json
-    # return {
-    #     "data": [
-    #         {
-    #             "business_unit": so.get("comp.name"),
-    #             "sub_business_unit": so.get("sub_comp.name"),
-    #             "cabang": so.get("branch.name"),
-    #             "trx_so": so.get("no"),
-    #             "so_date": so.get("date"),
-    #             "so_type": so.get("type"),
-    #             "item_type": so.get("item_type.value1"),
-    #             "customer_type": so.get("cust_type.value1"),
-    #             "pemasaran": so.get("pemasaran.value1"),
-    #             "pembayaran": so.get("pembayaran.value1"),
-    #             "customer": so.get("cust_name"),
-    #             "alamat_customer": so.get("cust_addr"),
-    #             "npwp": so.get("cust_npwp"),
-    #             "nama_npwp": so.get("cust_npwpname"),
-    #             "contact_person": so.get("cust_cp"),
-    #             "customer_po": so.get("cust_no_po"),
-    #             "bill_to": so.get("ship.name"),
-    #             "bill_to_address": so.get("ship.addr"),
-    #             "order_type_1": so.get("order_type1.value1"),
-    #             "order_type_2": so.get("order_type2.value1"),
-    #             "ppn_type": so.get("ppn_type"),
-    #             "so_prospek": so.get("is_prospek"),
-    #             "nama_penerima": so.get("ship.name"),
-    #             "alamat": so.get("ship.addr"),
-    #             "due_date": so.get("ship_duedate"),
-    #             "payment_term": so.get("pay_term.value1"),
-    #             "project": so.get("project"),
-    #             "down_payment_percentage": so.get("dp_pct"),
-    #             "down_payment_amount": so.get("dp_amt"),
-    #             "currency": so.get("currency.name"),
-    #             "exchange_rate": so.get("currency_rate"),
-    #             "catatan": so.get("note"),
-    #             "status": so.get("status.value1"),
-    #             "est_ekspedisi_percentage": so.get("exp_pct"),
-    #             "est_ekspedisi_amount": so.get("exp_amt"),
-    #             "est_operasional_percentage": so.get("ops_pct"),
-    #             "est_operasional_amount": so.get("ops_amt"),
-    #             "total_amount": so.get("amt"),
-    #             "total_discount_amount": so.get("disc_amt"),
-    #             "dpp": so.get("dpp"),
-    #             "ppn_percent": so.get("ppn_pct"),
-    #             "ppn_amount": so.get("ppn_amt"),
-    #             "grand_total": so.get("netto")
-    #         }
-    #         for so in so_data_as_json
-    #     ]
-    # }
 
 def get_as_a_list_document() -> list[Document]:
     params = {
