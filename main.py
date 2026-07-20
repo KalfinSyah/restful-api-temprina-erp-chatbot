@@ -1,16 +1,31 @@
 import rag
 import sales_order
 import os
+import mysql.connector
+import bcrypt
 from dotenv import load_dotenv
 from pydantic import BaseModel
 from fastapi import FastAPI, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from langchain_google_genai import ChatGoogleGenerativeAI
+from huggingface_hub import login
 
 load_dotenv(override=True)
+login(token=os.getenv("HF_TOKEN"))
 
-class UserRequest(BaseModel):
+class MessageRequest(BaseModel):
     message: str
+
+class LoginRequest(BaseModel):
+    username: str
+    password: str
+
+db = mysql.connector.connect(
+    host="localhost",
+    user="root",
+    password= os.getenv("DB_PASS"),
+    database="website_dashboard_sales_order_pt_temprina"
+)
 
 llm = ChatGoogleGenerativeAI(
     model="gemini-flash-latest",
@@ -34,6 +49,44 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.post("/login")
+def login(data: LoginRequest):
+    db = mysql.connector.connect(
+        host="localhost",
+        user="root",
+        password=os.getenv("DB_PASS"),
+        database="website_dashboard_sales_order_pt_temprina"
+    )
+
+    cursor = db.cursor(dictionary=True)
+
+    cursor.execute(
+        """
+        SELECT *
+        FROM users
+        WHERE name = %s
+        """,
+        (data.username,)
+    )
+
+    user = cursor.fetchone()
+
+    cursor.close()
+    db.close()
+
+    return {
+    "success": True,
+    "user": {
+        "id": user["id"],
+        "username": user["name"],
+        "email": user["email"],
+        "email_verified_at": user["email_verified_at"],
+        "remember_token": user["remember_token"],
+        "created_at": user["created_at"],
+        "updated_at": user["updated_at"]    
+    }
+}
 
 @app.get("/sales-order")
 async def get_sales_order_data(authorization: str = Header(None)):
@@ -94,7 +147,7 @@ async def get_sales_order_data(authorization: str = Header(None)):
     }
 
 @app.post("/chatbot")
-async def chatbot(data: UserRequest, authorization: str = Header(None)):
+async def chatbot(data: MessageRequest, authorization: str = Header(None)):
 
     if authorization != f"Bearer {os.getenv('CHATBOT_BEARER_TOKEN')}":
         raise HTTPException(status_code=401, detail="unauthorized")
