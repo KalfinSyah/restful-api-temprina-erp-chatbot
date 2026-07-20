@@ -75,18 +75,33 @@ def login(data: LoginRequest):
     cursor.close()
     db.close()
 
+    if not user:
+        return {
+            "success": False,
+            "message": "User tidak ditemukan"
+        }
+
+    if not bcrypt.checkpw(
+        data.password.encode(),
+        user["password"].encode()
+    ):
+        return {
+            "success": False,
+            "message": "Password salah"
+        }
+
     return {
-    "success": True,
-    "user": {
-        "id": user["id"],
-        "name": user["name"],
-        "email": user["email"],
-        "email_verified_at": user["email_verified_at"],
-        "remember_token": user["remember_token"],
-        "created_at": user["created_at"],
-        "updated_at": user["updated_at"]    
+        "success": True,
+        "user": {
+            "id": user["id"],
+            "name": user["name"],
+            "email": user["email"],
+            "email_verified_at": user["email_verified_at"],
+            "remember_token": user["remember_token"],
+            "created_at": user["created_at"],
+            "updated_at": user["updated_at"]
+        }
     }
-}
 
 @app.get("/sales-order")
 async def get_sales_order_data(authorization: str = Header(None)):
