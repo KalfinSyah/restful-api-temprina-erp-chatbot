@@ -11,7 +11,7 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from huggingface_hub import login
 
 load_dotenv(override=True)
-login(token=os.getenv("HF_TOKEN"))
+login(token=os.getenv("HF_TOKEN"))  
 
 class MessageRequest(BaseModel):
     message: str
@@ -19,13 +19,6 @@ class MessageRequest(BaseModel):
 class LoginRequest(BaseModel):
     username: str
     password: str
-
-db = mysql.connector.connect(
-    host="localhost",
-    user="root",
-    password= os.getenv("DB_PASS"),
-    database="website_dashboard_sales_order_pt_temprina"
-)
 
 llm = ChatGoogleGenerativeAI(
     model="gemini-flash-latest",
@@ -53,8 +46,8 @@ app.add_middleware(
 @app.post("/login")
 def login(data: LoginRequest):
     db = mysql.connector.connect(
-        host="localhost",
-        user="root",
+        host=os.getenv("DB_HOST"),
+        user=os.getenv("DB_USER"),
         password=os.getenv("DB_PASS"),
         database="website_dashboard_sales_order_pt_temprina"
     )
