@@ -21,7 +21,7 @@ class LoginRequest(BaseModel):
     password: str
 
 llm = ChatGoogleGenerativeAI(
-    model="gemini-flash-latest",
+    model="gemini-2.5-flash",
     temperature=0
 )
 
