@@ -9,3 +9,5 @@ fastapi
 uvicorn
 langchain-google-genai
 sentence-transformers
+mysql-connector-python
+bcrypt
