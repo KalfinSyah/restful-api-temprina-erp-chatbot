@@ -49,7 +49,7 @@ def login(data: LoginRequest):
         host=os.getenv("DB_HOST"),
         user=os.getenv("DB_USER"),
         password=os.getenv("DB_PASS"),
-        database="website_dashboard_sales_order_pt_temprina"
+        database=os.getenv("DB_NAME")
     )
 
     cursor = db.cursor(dictionary=True)
