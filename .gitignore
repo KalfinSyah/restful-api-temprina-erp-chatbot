@@ -1,10 +1,6 @@
 /.env
 /.venv
+/.venv_ubuntu
 /__pycache__/
-data_sales_order_periode_8_juni_2026.json
-experiment.ipynb
-main (old).py
-pertanyaan.json
-pertanyaan.py
-test_api.py
-temp.py
+data_sales_order_periode_8_oktober_2026.json
+testing.ipynb

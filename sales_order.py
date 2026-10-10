@@ -6,13 +6,8 @@ from dotenv import load_dotenv
 from langchain_core.documents import Document
 
 load_dotenv(override=True)
-
-def get_list_no_trx_so_from_query(query):
-    pattern = r'SO(?:-BR\d{4})?-\d{4}-\d{8}|DRAFT\d{6}'
-    matches = re.findall(pattern, query)
-    return matches
     
-def req_data():
+def get_as_a_json():
     params = {
         "scopes": "filterRespo",
         "detail": "true",
@@ -30,13 +25,54 @@ def req_data():
         timeout=30
     )
     response.raise_for_status()
-    return response.json().get("data", [])
-
-def req_data_testing():
-    with open("data_sales_order_periode_8_juni_2026.json", "r", encoding="utf-8") as f:
-        so_data_as_json = json.load(f)
-
-    return so_data_as_json
+    return [
+            {
+            "business_unit": so.get("comp.name"),
+            "sub_business_unit": so.get("sub_comp.name"),
+            "cabang": so.get("branch.name"),
+            "trx_so": so.get("no"),
+            "so_date": so.get("date"),
+            "so_type": so.get("type"),
+            "item_type": so.get("item_type.value1"),
+            "customer_type": so.get("cust_type.value1"),
+            "pemasaran": so.get("pemasaran.value1"),
+            "pembayaran": so.get("pembayaran.value1"),
+            "customer": so.get("cust_name"),
+            "alamat_customer": so.get("cust_addr"),
+            "npwp": so.get("cust_npwp"),
+            "nama_npwp": so.get("cust_npwpname"),
+            "contact_person": so.get("cust_cp"),
+            "customer_po": so.get("cust_no_po"),
+            "bill_to": so.get("ship.name"),
+            "bill_to_address": so.get("ship.addr"),
+            "order_type_1": so.get("order_type1.value1"),
+            "order_type_2": so.get("order_type2.value1"),
+            "ppn_type": so.get("ppn_type"),
+            "so_prospek": so.get("is_prospek"),
+            "nama_penerima": so.get("ship.name"),
+            "alamat": so.get("ship.addr"),
+            "due_date": so.get("ship_duedate"),
+            "payment_term": so.get("pay_term.value1"),
+            "project": so.get("project"),
+            "down_payment_percentage": so.get("dp_pct"),
+            "down_payment_amount": so.get("dp_amt"),
+            "currency": so.get("currency.name"),
+            "exchange_rate": so.get("currency_rate"),
+            "catatan": so.get("note"),
+            "status": so.get("status.value1"),
+            "est_ekspedisi_percentage": so.get("exp_pct"),
+            "est_ekspedisi_amount": so.get("exp_amt"),
+            "est_operasional_percentage": so.get("ops_pct"),
+            "est_operasional_amount": so.get("ops_amt"),
+            "total_amount": so.get("amt"),
+            "total_discount_amount": so.get("disc_amt"),
+            "dpp": so.get("dpp"),
+            "ppn_percent": so.get("ppn_pct"),
+            "ppn_amount": so.get("ppn_amt"),
+            "grand_total": so.get("netto")
+        }
+        for so in response.json().get("data", [])
+    ]
 
 def get_as_a_list_document() -> list[Document]:
     params = {
@@ -102,94 +138,8 @@ def get_as_a_list_document() -> list[Document]:
                 f"DPP: {so.get('dpp')}, "
                 f"PPN Percent: {so.get('ppn_pct')}, "
                 f"PPN Amount: {so.get('ppn_amt')}, "
-                f"Grand Total: {so.get('netto')}"   
+                f"Grand Total: {so.get('netto')}"
             )
         )
         for so in data
     ]
-
-def get_as_a_list_document_for_testing():
-    with open("data_sales_order_periode_8_juni_2026.json", "r", encoding="utf-8") as f:
-        so_data_as_json = json.load(f)
-    return [
-        Document(
-            page_content=", ".join(
-                f"{key}: {value}"
-                for key, value in so.items()
-            ),
-            metadata={"No. TRX SO": so.get("No. TRX SO")},
-        )
-        for so in so_data_as_json
-    ]
-
-def download_as_a_json():
-    params = {
-        "scopes": "filterRespo",
-        "detail": "true",
-        "join": "true",
-        "paginate": 250
-    }
-    headers = {
-        "Authorization": f"Bearer {os.getenv('T_SO_BEARER_TOKEN')}",
-        "Accept": "application/json",
-    }
-    response = requests.get(
-        os.getenv("T_SO_API_ENDPOINT"),
-        headers=headers,
-        params=params,
-        timeout=30
-    )
-    response.raise_for_status()
-    data_buffer = response.json().get("data", [])
-    data = [
-        {
-            "Business Unit": so.get("comp.name"),
-            "Sub Business Unit": so.get("sub_comp.name"),
-            "Cabang": so.get("branch.name"),
-            "No. TRX SO": so.get("no"),
-            "SO Date": so.get("date"),
-            "SO Type": so.get("type"),
-            "Item Type": so.get("item_type.value1"),
-            "Customer Type": so.get("cust_type.value1"),
-            "Pemasaran": so.get("pemasaran.value1"),
-            "Pembayaran": so.get("pembayaran.value1"),
-            "Customer": so.get("cust_name"),
-            "Alamat Customer": so.get("cust_addr"),
-            "No. NPWP": so.get("cust_npwp"),
-            "Nama NPWP": so.get("cust_npwpname"),
-            "Contact Person": so.get("cust_cp"),
-            "No. PO Customer": so.get("cust_no_po"),
-            "Bill To": so.get("ship.name"),
-            "Bill To Address": so.get("ship.addr"),
-            "Order Type 1": so.get("order_type1.value1"),
-            "Order Type 2": so.get("order_type2.value1"),
-            "PPN Type": so.get("ppn_type"),
-            "SO Prospek": so.get("is_prospek"),
-            "Nama Penerima": so.get("ship.name"),
-            "Alamat": so.get("ship.addr"),
-            "Due Date": so.get("ship_duedate"),
-            "Payment Term": so.get("pay_term.value1"),
-            "Project": so.get("project"),
-            "Down Payment Percentage": so.get("dp_pct"),
-            "Down Payment Amount": so.get("dp_amt"),
-            "Currency": so.get("currency.name"),
-            "Exchange Rate": so.get("currency_rate"),
-            "Catatan": so.get("note"),
-            "Status": so.get("status.value1"),
-            "Est. Ekspedisi Percentage": so.get("exp_pct"),
-            "Est. Ekspedisi Amount": so.get("exp_amt"),
-            "Est. Operasional Percentage": so.get("ops_pct"),
-            "Est. Operasional Amount": so.get("ops_amt"),
-            "Total Amount": so.get("amt"),
-            "Total Discount Amount": so.get("disc_amt"),
-            "DPP": so.get("dpp"),
-            "PPN Percent": so.get("ppn_pct"),
-            "PPN Amount": so.get("ppn_amt"),
-            "Grand Total": so.get("netto"),
-        }
-        for so in data_buffer
-    ]
-
-    with open("data_sales_order_periode_8_juni_2026.json", "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=4)
-    print("data_sales_order_periode_8_juni_2026.json berhasil diunduh dan disimpan.")

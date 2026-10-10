@@ -1,19 +1,3 @@
-# from langchain_huggingface import HuggingFaceEmbeddings
-# from langchain_community.vectorstores import FAISS
-
-# def get_hugging_face_embedding_model():
-#     return HuggingFaceEmbeddings(
-#         model_name="intfloat/multilingual-e5-base",
-#         encode_kwargs={"normalize_embeddings": True, "prompt": "passage: "},
-#         query_encode_kwargs={"normalize_embeddings": True, "prompt": "query: "},
-#     )
-
-# def vectorstrore_FAISS(documets, embedding_model = get_hugging_face_embedding_model()):
-#     return FAISS.from_documents(documets, embedding_model)
-
-# def retrieval(query, vectorstore, k):
-#     return vectorstore.similarity_search(query, k=k)
-
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain_classic.retrievers import ContextualCompressionRetriever
@@ -23,8 +7,7 @@ from langchain_community.cross_encoders import HuggingFaceCrossEncoder
 def get_hugging_face_embedding_model():
     return HuggingFaceEmbeddings(
         model_name="intfloat/multilingual-e5-base",
-        encode_kwargs={"normalize_embeddings": True, "prompt": "passage: "},
-        query_encode_kwargs={"normalize_embeddings": True, "prompt": "query: "},
+        model_kwargs={"device": "cpu"},
     )
 
 def vectorstrore_FAISS(documets, embedding_model = get_hugging_face_embedding_model()):
