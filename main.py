@@ -3,17 +3,18 @@ import sales_order
 import os
 import mysql.connector
 import bcrypt
+from typing import Any
 from models import MessageRequest
 from models import LoginRequest
 from dotenv import load_dotenv
 from fastapi import FastAPI, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from langchain_google_genai import ChatGoogleGenerativeAI
-from huggingface_hub import login
+from huggingface_hub import login as loginHF
 from utils import get_list_no_trx_so_from_query
 
 load_dotenv(override=True)
-login(token=os.getenv("HF_TOKEN"))
+loginHF(token=os.getenv("HF_TOKEN"))
 
 llm = ChatGoogleGenerativeAI(
     model="gemini-2.5-flash",
@@ -40,7 +41,7 @@ app.add_middleware(
 
 @app.post("/login")
 def login(data: LoginRequest, authorization: str = Header(None)):
-    if authorization != f"Bearer {os.getenv('SALES_ORDER_BEARER_TOKEN')}":
+    if authorization != f"Bearer {os.getenv('LOGIN_BEABER_TOKEN')}":
         raise HTTPException(status_code=401, detail="unauthorized")
 
     db = mysql.connector.connect(
@@ -61,8 +62,7 @@ def login(data: LoginRequest, authorization: str = Header(None)):
         (data.username,)
     )
 
-    user = cursor.fetchone()
-
+    user: dict[str, Any] | None = cursor.fetchone()
     cursor.close()
     db.close()
 
