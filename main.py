@@ -39,7 +39,10 @@ app.add_middleware(
 )
 
 @app.post("/login")
-def login(data: LoginRequest):
+def login(data: LoginRequest, authorization: str = Header(None)):
+    if authorization != f"Bearer {os.getenv('SALES_ORDER_BEARER_TOKEN')}":
+        raise HTTPException(status_code=401, detail="unauthorized")
+
     db = mysql.connector.connect(
         host=os.getenv("DB_HOST"),
         user=os.getenv("DB_USER"),
