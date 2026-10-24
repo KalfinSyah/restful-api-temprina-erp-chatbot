@@ -17,7 +17,7 @@ load_dotenv(override=True)
 loginHF(token=os.getenv("HF_TOKEN"))
 
 llm = ChatGoogleGenerativeAI(
-    model="gemini-3.8-flash~",
+    model="gemini-3.8-flash",
     temperature=0
 )
 
