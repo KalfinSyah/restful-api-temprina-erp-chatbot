@@ -1,6 +1,5 @@
 /.env
 /.venv
-/.venv_ubuntu
 /__pycache__/
 data_sales_order_periode_8_oktober_2026.json
 testing.ipynb

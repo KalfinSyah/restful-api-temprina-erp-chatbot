@@ -1,0 +1,13 @@
+.venv
+__pycache__
+*.pyc
+.git
+.gitignore
+.vscode
+.env
+.env.*
+!.env.example
+testing.ipynb
+data_sales_order_periode_8_oktober_2026.json
+Dockerfile
+.dockerignore
